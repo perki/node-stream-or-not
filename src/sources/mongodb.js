@@ -11,7 +11,7 @@ class MongoDB {
     this.size = size;
     this.options = options || {};
     this.options.mode = this.options.mode || 'cursor'; // supports paginated
-    if (this.options.mode === 'cursor') {
+    if (this.options.mode !== 'paginated') {
       this.options.pageSize = 'n/a';
     } else {
       this.options.pageSize = this.options.pageSize || 1000;
@@ -19,7 +19,7 @@ class MongoDB {
   }
 
   toString() {
-    return `MongoDB mode=${this.options.mode} size=${this.size} pageSize=${this.options.pageSize}`;
+    return `MongoDB ${this.options.mode}: size=${this.size} pageSize=${this.options.pageSize}`;
   }
 
   async ready() {
@@ -47,13 +47,18 @@ class MongoDB {
     if (this.options.mode === 'NativeMongoStream') {
       this.cursor = collection.find({}).limit(this.size);
       // assign stream to cursor
-      this.stream = this.cursor.stream();;
+      this.stream = this.cursor.stream();
       return;
     }
 
-    // here we are in paginated mode
-    // partinally async method fetching by array 
-    this[Symbol.asyncIterator] = await getPaginatedIterator(this.size, this.options.pageSize, collection);
+    if (this.options.mode === 'paginated') {
+      // here we are in paginated mode
+      // partinally async method fetching by array 
+      this[Symbol.asyncIterator] = await getPaginatedIterator(this.size, this.options.pageSize, collection);
+      return;
+    }
+
+    throw new Error('Unkown mode ' + this.options.mode);
   }
 
 
@@ -91,7 +96,7 @@ async function getPaginatedIterator(size, pageSize, collection) {
 
   async function nextPage() {
     const count = (pageSize + skip > size) ? size - skip : pageSize;
-    if (count <= 0) { 
+    if (count <= 0) {
       items = [];
     } else {
       items = await collection.find({}).limit(count).skip(skip).toArray();
