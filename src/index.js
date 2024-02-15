@@ -11,6 +11,7 @@ const InMemoryArray = require('./sources/inmemoryArray');
   const inMemoryArray = new InMemoryArray(size);
 
   for (const iter of [mongo1, mongo2, mongo3, gen1, inMemoryArray]) {
+    console.time('total');
     console.time('load');
     await iter.ready();
     console.timeEnd('load');
@@ -21,6 +22,7 @@ const InMemoryArray = require('./sources/inmemoryArray');
       z++;
     }
     console.timeEnd('done');
+    console.timeEnd('total');
     console.log(iter + ' count=' + z + '\n');
     
     await iter.close();
