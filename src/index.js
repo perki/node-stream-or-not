@@ -29,12 +29,16 @@ const InMemoryArray = require('./sources/inmemoryArray');
   }
 
   const mongostream1 = new MongoDB(size, { mode: 'NativeMongoStream' });
+  console.time('total');
+  console.time('load');
   await mongostream1.ready();
+  console.timeEnd('load');
   console.time('done');
   let z = 0;
   await consumeStream(mongostream1.stream, data => { z++; });
-  console.log(mongostream1 + ' count=' + z);
   console.timeEnd('done');
+  console.timeEnd('total');
+  console.log(mongostream1 + ' count=' + z);
   await mongostream1.close();
 
 })();
