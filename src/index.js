@@ -1,12 +1,14 @@
 const MongoDB = require('./sources/mongodb');
-
+const generator = require('./sources/generator');
 
 (async () => {
-  const mongo1 = new MongoDB(100000, { mode: 'paginated', pageSize: 100000 });
-  const mongo2 = new MongoDB(100000, { mode: 'cursor' });
-  const mongo3 = new MongoDB(100000, { mode: 'hasNextNext' });
+  const size = 100000;
+  const mongo1 = new MongoDB(size, { mode: 'paginated', pageSize: size });
+  const mongo2 = new MongoDB(size, { mode: 'cursor' });
+  const mongo3 = new MongoDB(size, { mode: 'hasNextNext' });
+  const gen1 = generator(size);
 
-  for (const iter of [mongo1, mongo2, mongo3]) {
+  for (const iter of [mongo1, mongo2, mongo3, gen1]) {
     await iter.ready();
     console.time('done');
     let z = 0;
@@ -19,7 +21,7 @@ const MongoDB = require('./sources/mongodb');
     await iter.close();
   }
 
-  const mongostream1 = new MongoDB(10000, { mode: 'NativeMongoStream' });
+  const mongostream1 = new MongoDB(size, { mode: 'NativeMongoStream' });
   await mongostream1.ready();
   console.time('done');
   let z = 0;

@@ -34,28 +34,28 @@ class MongoDB {
       this.cursor = collection.find({}).limit(this.size);
       // assign iterator to cursor using hasNext next
       this[Symbol.asyncIterator] = await getIteratorFromHasNextNext(this.cursor);
-      return;
+      return this;
     }
 
     if (this.options.mode === 'cursor') {
       this.cursor = collection.find({}).limit(this.size);
       // assign iterator to cursor
       this[Symbol.asyncIterator] = this.cursor[Symbol.asyncIterator].bind(this.cursor);
-      return;
+      return this;
     }
 
     if (this.options.mode === 'NativeMongoStream') {
       this.cursor = collection.find({}).limit(this.size);
       // assign stream to cursor
       this.stream = this.cursor.stream();
-      return;
+      return this;
     }
 
     if (this.options.mode === 'paginated') {
       // here we are in paginated mode
       // partinally async method fetching by array 
       this[Symbol.asyncIterator] = await getPaginatedIterator(this.size, this.options.pageSize, collection);
-      return;
+      return this;
     }
 
     throw new Error('Unkown mode ' + this.options.mode);
