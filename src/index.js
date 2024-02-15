@@ -1,5 +1,6 @@
 const MongoDB = require('./sources/mongodb');
 const generator = require('./sources/generator');
+const InMemoryArray = require('./sources/inmemoryArray');
 
 (async () => {
   const size = 100000;
@@ -7,17 +8,21 @@ const generator = require('./sources/generator');
   const mongo2 = new MongoDB(size, { mode: 'cursor' });
   const mongo3 = new MongoDB(size, { mode: 'hasNextNext' });
   const gen1 = generator(size);
+  const inMemoryArray = new InMemoryArray(size);
 
-  for (const iter of [mongo1, mongo2, mongo3, gen1]) {
+  for (const iter of [mongo1, mongo2, mongo3, gen1, inMemoryArray]) {
+    console.time('load');
     await iter.ready();
+    console.timeEnd('load');
     console.time('done');
     let z = 0;
     for await (const value of iter) {
       //console.log(value);
       z++;
     }
-    console.log(iter + ' count=' + z);
     console.timeEnd('done');
+    console.log(iter + ' count=' + z + '\n');
+    
     await iter.close();
   }
 
