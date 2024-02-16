@@ -1,3 +1,7 @@
+/**
+ * Simply consume all sources
+ */
+
 const MongoDB = require('./sources/mongodb');
 const generator = require('./sources/generator');
 const InMemoryArray = require('./sources/inmemoryArray');
